@@ -44,11 +44,11 @@ class SpotifyManager: NSObject {
     }
     
     func start() {
-        DistributedNotificationCenter.default().addObserver(self, selector: #selector(SpotifyManager.playbackStateChanged(_:)), name: NSNotification.Name(rawValue: "com.spotify.client.PlaybackStateChanged"), object: nil);
+        DistributedNotificationCenter.default().addObserver(self, selector: #selector(self.playbackStateChanged(_:)), name: NSNotification.Name(rawValue: "com.spotify.client.PlaybackStateChanged"), object: nil);
         
-        if NSRunningApplication.runningApplications(withBundleIdentifier: "com.spotify.client").count != 0 && spotify.playerState! == .playing {
-            checkForAd()
-        }
+        restartSong()
+        checkSong()
+        
     }
     
     @objc func playbackStateChanged(_ notification : Notification) {
@@ -59,20 +59,52 @@ class SpotifyManager: NSObject {
                 state = .inactive
                 fallthrough
             case "Paused":
-                state = .active
+                state = .inactive
             case "Playing":
-                checkForAd()
+                checkSong()
             case _: break
         }
     }
     
-    @objc func checkForAd() {
+    func checkSong(){
+        let afterJob = DispatchWorkItem { self.checkSong() }
+        if (state == .inactive) {
+            restartSong()
+            afterJob.cancel()
+        }
+        
         state = .active
-        let isAd = getCurrentSongSpotifyURL().starts(with: "spotify:ad")
-        debugPrint(isAd ? getCurrentSongSpotifyURL() : "")
-        isAd ? mute() : unmute()
+        let songURL = getCurrentSongSpotifyURL()
+        let duration = getCurrentSongDuration()
+        
+        let isSong = songURL.starts(with: "spotify:track")
+        _ = songURL.starts(with: "spotify:ad")
+
+        if (isSong) {
+            unmute()
+            DispatchQueue.main.asyncAfter(deadline: .now() + duration, execute: afterJob)
+        } else {
+            mute()
+        }
     }
     
+    /**
+    * Restart current song
+    */
+    func restartSong(){
+        _ = runAppleScript(script: SpotifyManager.appleScriptSpotifyPrefix + "(play previous track)")
+    }
+    
+    /**
+    * Returns current song duration in seconds
+    */
+    func getCurrentSongDuration() -> Double {
+        return (runAppleScript(script: SpotifyManager.appleScriptSpotifyPrefix + "(get duration of current track)") as NSString).doubleValue / 1000
+    }
+    
+    /**
+    * Returns current song URL
+    */
     func getCurrentSongSpotifyURL() -> String {
         return runAppleScript(script: SpotifyManager.appleScriptSpotifyPrefix + "(get spotify url of current track)")
     }
@@ -95,27 +127,9 @@ class SpotifyManager: NSObject {
         return String(data: data, encoding: String.Encoding.utf8)!
     }
     
-//    func startPolling() {
-//        if (timer != nil) {return}
-//        timer = Timer.scheduledTimer(timeInterval: DataManager.sharedData.pollingRate(), target: self, selector: #selector(SpotifyManager.checkForAd), userInfo: nil, repeats: true)
-//        timer!.fire()
-//
-//        state = .active
-//    }
-    
-//    func stopPolling() {
-//        if let timer = timer {
-//            timer.invalidate()
-//            self.timer = nil
-//            state = isMuted ? .muting : .inactive
-//        }
-//    }
-    
     func mute() {
         state = .muting
         oldVolume = (spotify.soundVolume)!
-        
-//      stopPolling()
         
         spotify.pause!()
         spotify.setSoundVolume!(0);

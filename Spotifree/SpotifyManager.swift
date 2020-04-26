@@ -28,6 +28,8 @@ extension SpotifyManagerDelegate {
 class SpotifyManager: NSObject {
     var delegate : SpotifyManagerDelegate?
     
+    private static let appleScriptSpotifyPrefix = "tell application \"Spotify\" to "
+    
     private var timer : Timer?
     
     private let spotify = SBApplication(bundleIdentifier: "com.spotify.client")! as SpotifyApplication
@@ -45,53 +47,75 @@ class SpotifyManager: NSObject {
         DistributedNotificationCenter.default().addObserver(self, selector: #selector(SpotifyManager.playbackStateChanged(_:)), name: NSNotification.Name(rawValue: "com.spotify.client.PlaybackStateChanged"), object: nil);
         
         if NSRunningApplication.runningApplications(withBundleIdentifier: "com.spotify.client").count != 0 && spotify.playerState! == .playing {
-            startPolling()
+            checkForAd()
         }
     }
     
-    func playbackStateChanged(_ notification : Notification) {
+    @objc func playbackStateChanged(_ notification : Notification) {
         let playerState = notification.userInfo!["Player State"] as! String
+        debugPrint("State " + playerState)
         switch playerState {
-        case "Stopped":
-            state = .inactive
-            fallthrough
-        case "Paused":
-            stopPolling()
-        case "Playing":
-            startPolling()
-        case _: break
+            case "Stopped":
+                state = .inactive
+                fallthrough
+            case "Paused":
+                state = .active
+            case "Playing":
+                checkForAd()
+            case _: break
         }
     }
     
-    func checkForAd() {
-        let currentTrack = spotify.currentTrack!
-        let isAd = fakeAds ?  currentTrack.spotifyUrl!.hasPrefix("spotify:local") : currentTrack.trackNumber! == 0 && !currentTrack.spotifyUrl!.hasPrefix("spotify:local")
+    @objc func checkForAd() {
+        state = .active
+        let isAd = getCurrentSongSpotifyURL().starts(with: "spotify:ad")
+        debugPrint(isAd ? getCurrentSongSpotifyURL() : "")
         isAd ? mute() : unmute()
     }
     
-    func startPolling() {
-        if (timer != nil) {return}
-        timer = Timer.scheduledTimer(timeInterval: DataManager.sharedData.pollingRate(), target: self, selector: #selector(SpotifyManager.checkForAd), userInfo: nil, repeats: true)
-        timer!.fire()
-        
-        state = .active
+    func getCurrentSongSpotifyURL() -> String {
+        return runAppleScript(script: SpotifyManager.appleScriptSpotifyPrefix + "(get spotify url of current track)")
     }
     
-    func stopPolling() {
-        if let timer = timer {
-            timer.invalidate()
-            self.timer = nil
-            state = isMuted ? .muting : .inactive
-        }
+    /**
+     * Runs the given apple script and passes logs to completion handler
+     */
+    func runAppleScript(script: String) -> String {
+        let process = Process()
+        process.launchPath = "/usr/bin/osascript"
+        process.arguments = ["-e", script]
+        
+        let pipe = Pipe()
+        process.standardOutput = pipe
+        
+        process.launch()
+        process.waitUntilExit()
+        
+        let data = pipe.fileHandleForReading.availableData
+        return String(data: data, encoding: String.Encoding.utf8)!
     }
+    
+//    func startPolling() {
+//        if (timer != nil) {return}
+//        timer = Timer.scheduledTimer(timeInterval: DataManager.sharedData.pollingRate(), target: self, selector: #selector(SpotifyManager.checkForAd), userInfo: nil, repeats: true)
+//        timer!.fire()
+//
+//        state = .active
+//    }
+    
+//    func stopPolling() {
+//        if let timer = timer {
+//            timer.invalidate()
+//            self.timer = nil
+//            state = isMuted ? .muting : .inactive
+//        }
+//    }
     
     func mute() {
-        if isMuted {return}
-        
-        isMuted = true
+        state = .muting
         oldVolume = (spotify.soundVolume)!
         
-        stopPolling()
+//      stopPolling()
         
         spotify.pause!()
         spotify.setSoundVolume!(0);
@@ -105,8 +129,7 @@ class SpotifyManager: NSObject {
     }
     
     func unmute() {
-        if !isMuted {return}
-        
+        state = .active
         delay(3/4) {
             self.isMuted = false
             self.spotify.setSoundVolume!(self.oldVolume)

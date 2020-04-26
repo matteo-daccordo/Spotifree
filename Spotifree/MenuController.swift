@@ -39,35 +39,34 @@ class MenuController : NSObject {
         statusMenu.addItem(withTitle: NSLocalizedString("MENU_RUN_AT_LOGIN", comment: "Menu: Run At Login"), action: #selector(MenuController.toggleLoginItem), keyEquivalent: "").target = self
         statusMenu.addItem(withTitle: NSLocalizedString("MENU_NOTIFICATIONS", comment: "Menu: Notifications"), action: #selector(MenuController.toggleNotifications), keyEquivalent: "").target = self
         statusMenu.addItem(NSMenuItem.separator())
-        statusMenu.addItem(withTitle: NSLocalizedString("MENU_DONATE", comment: "Menu: Donate"), action: #selector(MenuController.donateLinkClicked), keyEquivalent: "").target = self
         statusMenu.addItem(withTitle: NSLocalizedString("MENU_ABOUT", comment: "Menu: About"), action: #selector(MenuController.aboutItemClicked), keyEquivalent: "").target = self
-        statusMenu.addItem(withTitle: NSLocalizedString("MENU_QUIT", comment: "Menu: Quit"), action: #selector(NSApplication.shared().terminate(_:)), keyEquivalent: "q").keyEquivalentModifierMask = NSEventModifierFlags(rawValue: UInt(Int(NSEventModifierFlags.command.rawValue)));
+        statusMenu.addItem(withTitle: NSLocalizedString("MENU_QUIT", comment: "Menu: Quit"), action: #selector(NSApplication.shared.terminate(_:)), keyEquivalent: "q").keyEquivalentModifierMask = NSEvent.ModifierFlags(rawValue: UInt(Int(NSEvent.ModifierFlags.command.rawValue)));
         statusMenu.addItem(NSMenuItem.separator())
         
-        statusItem = NSStatusBar.system().statusItem(withLength: NSSquareStatusItemLength)
+        statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
         statusItem!.image = NSImage(named: "statusBarIconInactiveTemplate")
         statusItem!.menu = statusMenu
         statusItem!.highlightMode = true
     }
     
-    override func validateMenuItem(_ menuItem: NSMenuItem) -> Bool {
+    func validateMenuItem(_ menuItem: NSMenuItem) -> Bool {
         if menuItem.action == #selector(MenuController.toggleNotifications) {
-            menuItem.state = Int(DataManager.sharedData.shouldShowNofifications())
+            menuItem.state = NSControl.StateValue(rawValue: Int(DataManager.sharedData.shouldShowNofifications()))
         }
         if menuItem.action == #selector(MenuController.toggleLoginItem) {
-            menuItem.state = Int(DataManager.sharedData.isInLoginItems())
+            menuItem.state = NSControl.StateValue(rawValue: Int(DataManager.sharedData.isInLoginItems()))
         }
         if menuItem.action == #selector(MenuController.toggleAutomaticallyCheckForUpdates) {
-            menuItem.state = Int(SUUpdater.shared().automaticallyChecksForUpdates)
+            menuItem.state = NSControl.StateValue(rawValue: Int(SUUpdater.shared().automaticallyChecksForUpdates))
         }
         if menuItem.action == #selector(MenuController.toggleAutomaticallyDownloadUpdates) {
-            menuItem.state = Int(SUUpdater.shared().automaticallyDownloadsUpdates)
+            menuItem.state = NSControl.StateValue(rawValue: Int(SUUpdater.shared().automaticallyDownloadsUpdates))
             return SUUpdater.shared().automaticallyChecksForUpdates
         }
         return true
     }
     
-    func hideIconClicked() {
+    @objc func hideIconClicked() {
         let alert = NSAlert()
         alert.messageText = NSLocalizedString("ALERT_HIDE_ICON_INFO", comment: "Alert info: To show the icon again, simply launch Spotifree from Dock or Finder")
         alert.addButton(withTitle: NSLocalizedString("OK", comment: "General: OK"))
@@ -77,56 +76,50 @@ class MenuController : NSObject {
             alert.informativeText = NSLocalizedString("ALERT_HIDE_ICON_LAUNCH_AT_LOGIN_INFO", comment: "Alert info: If you want to make the app truly invisible, we suggest also allowing it to launch at login")
             alert.showsSuppressionButton = true
             alert.suppressionButton?.title = NSLocalizedString("MENU_RUN_AT_LOGIN", comment: "Menu: Run At Login")
-            alert.suppressionButton?.state = NSOffState
+            alert.suppressionButton?.state = NSControl.StateValue.off
         }
         
         statusItem?.highlightMode = false
         let response = alert.runModal()
-        if response == NSAlertFirstButtonReturn {
+        if response == NSApplication.ModalResponse.alertFirstButtonReturn {
             DataManager.sharedData.setMenuBarIconHidden(true)
-            NSStatusBar.system().removeStatusItem(statusItem!)
+            NSStatusBar.system.removeStatusItem(statusItem!)
             statusItem = nil
             
-            if alert.suppressionButton?.state == NSOnState {
+            if alert.suppressionButton?.state == NSControl.StateValue.on {
                 DataManager.sharedData.toggleLoginItem()
             }
         }
         statusItem?.highlightMode = true
     }
     
-    func showMenuBarIconIfNeeded() {
+    @objc func showMenuBarIconIfNeeded() {
         if self.statusItem != nil {return}
         
         DataManager.sharedData.setMenuBarIconHidden(false)
         setUpMenu()
     }
     
-    func toggleNotifications() {
+    @objc func toggleNotifications() {
         DataManager.sharedData.toggleShowNotifications()
     }
     
-    func toggleLoginItem() {
+    @objc func toggleLoginItem() {
         DataManager.sharedData.toggleLoginItem()
     }
     
-    func toggleAutomaticallyCheckForUpdates() {
+    @objc func toggleAutomaticallyCheckForUpdates() {
         SUUpdater.shared().automaticallyChecksForUpdates = !SUUpdater.shared().automaticallyChecksForUpdates
         SUUpdater.shared().automaticallyDownloadsUpdates = false;
     }
     
-    func toggleAutomaticallyDownloadUpdates() {
+    @objc func toggleAutomaticallyDownloadUpdates() {
         SUUpdater.shared().automaticallyDownloadsUpdates = !SUUpdater.shared().automaticallyDownloadsUpdates
     }
     
-    func donateLinkClicked() {
-        let donateURL = "https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=UG7ECWW2QNWBJ&lc=US&item_name=Donation%20for%20the%20development%20of%20Spotifree%20app&currency_code=USD&bn=PP%2dDonationsBF%3abtn_donateCC_LG%2egif%3aNonHosted"
-        
-        NSWorkspace.shared().open(URL(string: donateURL)!)
-    }
-    
-    func aboutItemClicked() {
-        NSApplication.shared().activate(ignoringOtherApps: true)
-        NSApplication.shared().orderFrontStandardAboutPanel(self)
+    @objc func aboutItemClicked() {
+        NSApplication.shared.activate(ignoringOtherApps: true)
+        NSApplication.shared.orderFrontStandardAboutPanel(self)
     }
 }
 

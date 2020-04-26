@@ -25,7 +25,7 @@ class DataManager : NSObject {
             addLoginItem()
         }
         
-        let defaults = [KEY_MENU_BAR_ICON_HIDDEN : false, KEY_SHOW_NOTIFICATIONS : false, KEY_POLLING_RATE : 0.3] as [String : Any]
+        let defaults = [KEY_MENU_BAR_ICON_HIDDEN : false, KEY_SHOW_NOTIFICATIONS : false, KEY_POLLING_RATE : 1] as [String : Any]
         UserDefaults.standard.register(defaults: defaults)
         
         if !UserDefaults.standard.bool(forKey: "SUHasLaunchedBefore") {

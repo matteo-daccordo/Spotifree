@@ -1,0 +1,54 @@
+﻿/* Alert info: To show the icon again, simply launch Spotifree from Dock or Finder */
+"ALERT_HIDE_ICON_INFO" = "Hogy újra megjelenjen az ikon, csak indítsd el a Spotifree-t a Dock-ról vagy Finder-ből";
+
+/* Alert info: If you want to make the app truly invisible, we suggest also allowing it to launch at login */
+"ALERT_HIDE_ICON_LAUNCH_AT_LOGIN_INFO" = "Ha teljesen láthatatlanná szeretnéd tenni az alkalmazást, ajánlott engedélyezni az indulását a rendszerrel együtt";
+
+/* General: Cancel */
+"CANCEL" = "Mégsem";
+
+/* Menu: About */
+"MENU_ABOUT" = "A Spotifree-ről";
+
+/* Spotify state: Active */
+"MENU_ACTIVE" = "Aktív";
+
+/* Menu: Donate */
+"MENU_DONATE" = "Támogatás";
+
+/* Menu: Hide Icon */
+"MENU_HIDE_ICON" = "Ikon elrejtése";
+
+/* Spotify state: Inactive */
+"MENU_INACTIVE" = "Inaktív";
+
+/* Spotify state: Muting Ad */
+"MENU_MUTING_AD" = "Reklám némítás";
+
+/* Menu: Notifications */
+"MENU_NOTIFICATIONS" = "Értesítések";
+
+/* Menu: Quit */
+"MENU_QUIT" = "Spotifree bezárása";
+
+/* Menu: Run At Login */
+"MENU_RUN_AT_LOGIN" = "Indulás a rendszerrel együtt";
+
+/* Menu: Updates */
+"MENU_UPDATES" = "Frissítések";
+
+/* Menu: Check Automatically */
+"MENU_UPDATES_CHECK_AUTOMATICALLY" = "Automatikus ellenőrzés";
+
+/* Menu: Check For Updates... */
+"MENU_UPDATES_CHECK_FOR_UPDATES" = "Frissítések keresése...";
+
+/* Menu: Download automatically */
+"MENU_UPDATES_DOWNLOAD_AUTOMATICALLY" = "Automatikus letöltés";
+
+/* Notification: A Spotify ad was detected! Music will be back in about %i seconds... */
+"NOTIFICATION_AD_DETECTED" = "Spotify reklám észlelve! A zene folytatódik körülbelül %i másodperc múlva...";
+
+/* General: OK */
+"OK" = "Rendben";
+

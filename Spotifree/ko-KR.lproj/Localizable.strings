@@ -1,0 +1,54 @@
+﻿/* Alert info: To show the icon again, simply launch Spotifree from Dock or Finder */
+"ALERT_HIDE_ICON_INFO" = "아이콘을 숨깁니다. 다시 보고 싶다면 독이나 파인더에서 프로그램을 실행하세요.";
+
+/* Alert info: If you want to make the app truly invisible, we suggest also allowing it to launch at login */
+"ALERT_HIDE_ICON_LAUNCH_AT_LOGIN_INFO" = "정말 프로그램을 보이지 않게 하고 싶다면, 로그인 시 실행 옵션을 함께 이용하세요";
+
+/* General: Cancel */
+"CANCEL" = "취소";
+
+/* Menu: About */
+"MENU_ABOUT" = "프로그램 정보";
+
+/* Spotify state: Active */
+"MENU_ACTIVE" = "활성";
+
+/* Menu: Donate */
+"MENU_DONATE" = "기부";
+
+/* Menu: Hide Icon */
+"MENU_HIDE_ICON" = "아이콘 숨기기";
+
+/* Spotify state: Inactive */
+"MENU_INACTIVE" = "비활성";
+
+/* Spotify state: Muting Ad */
+"MENU_MUTING_AD" = "광고 중 음소거";
+
+/* Menu: Notifications */
+"MENU_NOTIFICATIONS" = "알림";
+
+/* Menu: Quit */
+"MENU_QUIT" = "프로그램 종료";
+
+/* Menu: Run At Login */
+"MENU_RUN_AT_LOGIN" = "로그인 시 실행";
+
+/* Menu: Updates */
+"MENU_UPDATES" = "업데이트";
+
+/* Menu: Check Automatically */
+"MENU_UPDATES_CHECK_AUTOMATICALLY" = "자동 확인";
+
+/* Menu: Check For Updates... */
+"MENU_UPDATES_CHECK_FOR_UPDATES" = "업데이트 확인중...";
+
+/* Menu: Download automatically */
+"MENU_UPDATES_DOWNLOAD_AUTOMATICALLY" = "자동 다운로드";
+
+/* Notification: A Spotify ad was detected! Music will be back in about %i seconds... */
+"NOTIFICATION_AD_DETECTED" = "광고가 감지되었습니다! 음악이 약 %i 초 뒤에 다시 시작됩니다...";
+
+/* General: OK */
+"OK" = "확인";
+

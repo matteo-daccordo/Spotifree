@@ -25,21 +25,11 @@ class MenuController : NSObject {
         statusMenu.addItem(withTitle: NSLocalizedString("MENU_INACTIVE", comment: "Spotify state: Inactive"), action: nil, keyEquivalent: "").tag = 1
         statusMenu.addItem(NSMenuItem.separator())
         
-        let updateMenu = NSMenu()
-        updateMenu.addItem(withTitle: NSLocalizedString("MENU_UPDATES_CHECK_FOR_UPDATES", comment:"Menu: Check For Updates..."), action: #selector(SUUpdater.checkForUpdates(_:)), keyEquivalent: "").target = SUUpdater.shared()
-        updateMenu.addItem(NSMenuItem.separator())
-        updateMenu.addItem(withTitle: NSLocalizedString("MENU_UPDATES_CHECK_AUTOMATICALLY", comment: "Menu: Check Automatically"), action: #selector(MenuController.toggleAutomaticallyCheckForUpdates), keyEquivalent: "").target = self
-        updateMenu.addItem(withTitle: NSLocalizedString("MENU_UPDATES_DOWNLOAD_AUTOMATICALLY", comment: "Menu: Download automatically"), action: #selector(MenuController.toggleAutomaticallyDownloadUpdates), keyEquivalent: "").target = self
-        let updateItem = NSMenuItem(title:NSLocalizedString("MENU_UPDATES", comment: "Menu: Updates"), action: nil, keyEquivalent: "")
-        updateItem.submenu = updateMenu;
-        
-        statusMenu.addItem(updateItem);
         statusMenu.addItem(withTitle: NSLocalizedString("MENU_HIDE_ICON", comment: "Menu: Hide Icon"), action: #selector(MenuController.hideIconClicked), keyEquivalent: "").target = self
         statusMenu.addItem(NSMenuItem.separator())
         statusMenu.addItem(withTitle: NSLocalizedString("MENU_RUN_AT_LOGIN", comment: "Menu: Run At Login"), action: #selector(MenuController.toggleLoginItem), keyEquivalent: "").target = self
         statusMenu.addItem(withTitle: NSLocalizedString("MENU_NOTIFICATIONS", comment: "Menu: Notifications"), action: #selector(MenuController.toggleNotifications), keyEquivalent: "").target = self
         statusMenu.addItem(NSMenuItem.separator())
-        statusMenu.addItem(withTitle: NSLocalizedString("MENU_ABOUT", comment: "Menu: About"), action: #selector(MenuController.aboutItemClicked), keyEquivalent: "").target = self
         statusMenu.addItem(withTitle: NSLocalizedString("MENU_QUIT", comment: "Menu: Quit"), action: #selector(NSApplication.shared.terminate(_:)), keyEquivalent: "q").keyEquivalentModifierMask = NSEvent.ModifierFlags(rawValue: UInt(Int(NSEvent.ModifierFlags.command.rawValue)));
         statusMenu.addItem(NSMenuItem.separator())
         

@@ -20,10 +20,6 @@ enum SFSpotifreeState {
 protocol SpotifyManagerDelegate {
     func spotifreeStateChanged(_ state: SFSpotifreeState)
 }
-// Optional Functions
-extension SpotifyManagerDelegate {
-    func spotifreeStateChanged(_ state: SFSpotifreeState) {}
-}
 
 class SpotifyManager: NSObject {
     var delegate : SpotifyManagerDelegate?
@@ -33,7 +29,7 @@ class SpotifyManager: NSObject {
     private var timer : Timer?
     
     private let spotify = SBApplication(bundleIdentifier: "com.spotify.client")! as SpotifyApplication
-    
+
     private var isMuted = false
     private var oldVolume = 75
     
@@ -44,48 +40,31 @@ class SpotifyManager: NSObject {
     }
     
     func start() {
-        DistributedNotificationCenter.default().addObserver(self, selector: #selector(self.playbackStateChanged(_:)), name: NSNotification.Name(rawValue: "com.spotify.client.PlaybackStateChanged"), object: nil);
-        
-        restartSong()
+        DistributedNotificationCenter.default().addObserver(
+            self,
+            selector: #selector(self.playbackStateChanged(_:)),
+            name: NSNotification.Name(rawValue: "com.spotify.client.PlaybackStateChanged"),
+            object: nil);
         checkSong()
-        
     }
     
     @objc func playbackStateChanged(_ notification : Notification) {
         let playerState = notification.userInfo!["Player State"] as! String
+        debugPrint(notification)
         debugPrint("State " + playerState)
-        switch playerState {
-            case "Stopped":
-                state = .inactive
-                fallthrough
-            case "Paused":
-                state = .inactive
-            case "Playing":
-                checkSong()
-            case _: break
-        }
+        checkSong()
     }
     
-    func checkSong(){
-        let afterJob = DispatchWorkItem { self.checkSong() }
-        if (state == .inactive) {
-            restartSong()
-            afterJob.cancel()
-        }
-        
+    func checkSong() {
         state = .active
         let songURL = getCurrentSongSpotifyURL()
-        let duration = getCurrentSongDuration()
-        
+        debugPrint(songURL)
         let isSong = songURL.starts(with: "spotify:track")
+        debugPrint(isSong)
         _ = songURL.starts(with: "spotify:ad")
-
-        if (isSong) {
-            unmute()
-            DispatchQueue.main.asyncAfter(deadline: .now() + duration, execute: afterJob)
-        } else {
-            mute()
-        }
+        
+        isSong ? unmute() : mute()
+        
     }
     
     /**
@@ -128,25 +107,17 @@ class SpotifyManager: NSObject {
     }
     
     func mute() {
-        state = .muting
-        oldVolume = (spotify.soundVolume)!
-        
         spotify.pause!()
-        spotify.setSoundVolume!(0);
+        self.spotify.setSoundVolume!(0);
+        self.isMuted = true
         spotify.play!()
-        
-        if DataManager.sharedData.shouldShowNofifications() {
-            var duration = 0
-            duration = spotify.currentTrack!.duration! / 1000 * 2
-            displayNotificationWithText(String(format: NSLocalizedString("NOTIFICATION_AD_DETECTED", comment: "Notification: A Spotify ad was detected! Music will be back in about %i seconds…"), duration))
-        }
     }
     
     func unmute() {
         state = .active
         delay(3/4) {
             self.isMuted = false
-            self.spotify.setSoundVolume!(self.oldVolume)
+            self.spotify.setSoundVolume!(100)
         }
     }
     
@@ -155,7 +126,6 @@ class SpotifyManager: NSObject {
         notification.title = "Spotifree"
         notification.informativeText = text
         notification.soundName = nil
-        
         NSUserNotificationCenter.default.deliver(notification)
     }
     

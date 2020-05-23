@@ -52,19 +52,45 @@ class SpotifyManager: NSObject {
         let playerState = notification.userInfo!["Player State"] as! String
         debugPrint(notification)
         debugPrint("State " + playerState)
+        switch playerState {
+            case "Stopped":
+                fallthrough
+            case "Paused":
+                stopPolling()
+            case "Playing":
+                startPolling()
+            case _: break
+        }
         checkSong()
     }
     
-    func checkSong() {
+    @objc func checkSong() {
         state = .active
         let songURL = getCurrentSongSpotifyURL()
         debugPrint(songURL)
         let isSong = songURL.starts(with: "spotify:track")
         debugPrint(isSong)
-        _ = songURL.starts(with: "spotify:ad")
         
         isSong ? unmute() : mute()
-        
+    }
+    
+    func startPolling() {
+        if (timer != nil) {return}
+        timer = Timer.scheduledTimer(
+                timeInterval: DataManager.sharedData.pollingRate(),
+                target: self,
+                selector: #selector(SpotifyManager.checkSong),
+                userInfo: nil,
+                repeats: true
+        )
+        timer!.fire()
+    }
+    
+    func stopPolling() {
+        if let timer = timer {
+            timer.invalidate()
+            self.timer = nil
+        }
     }
     
     /**

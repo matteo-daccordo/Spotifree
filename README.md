@@ -1,7 +1,8 @@
 # Spotifree
 Spotifree is a free OS X app that automatically detects and mutes Spotify audio ads.
 
-In this version the ads are muted when the user press pause on the ads. No pooling and no restart is needed.
+In this version the ads are automatically muted with polling using Apple Script. Unfortunately Spotify notification doesn't catch when an ad starts.
+Temporary solution, I hope.
 
 #### Thanks
 The original project is made from:http://spotifree.gordinskiy.com
